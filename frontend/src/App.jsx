@@ -11,6 +11,11 @@ import Contact_uscontainer from './container/contact_uscontainer';
 import SignUp from './components/sign_up';
 import Login from './components/login';
 import UserLandingPage from './components/userlanding';
+import Rentdashboard from './container/rentdashboardcontainer/rentdashboardcontainer';
+import Dashboard from './components/rentdashboard/dashboard';
+import EquipmentPage from './components/rentdashboard/equipment';
+import BookingsPage from './components/rentdashboard/booking';
+import PaymentPage from './components/rentdashboard/payment';
 function App() {
  const router=createBrowserRouter([
   {
@@ -44,6 +49,22 @@ function App() {
   {
     path:'/en-us/auth/loggedin/dashboard',
     element:<UserLandingPage/>
+  },
+  {
+    path:'/en-us/authenticated/dashboard/dashboard',
+    element:<Rentdashboard><Dashboard/></Rentdashboard>
+  },
+  {
+    path:'/en-us/authenticated/dashboard/equipments',
+    element:<Rentdashboard><EquipmentPage/></Rentdashboard>
+  },
+  {
+    path:'/en-us/authenticated/dashboard/Bookings',
+    element:<Rentdashboard><BookingsPage/></Rentdashboard>
+  },
+  {
+    path:'/en-us/authenticated/dashboard/Payment',
+    element:<Rentdashboard><PaymentPage/></Rentdashboard>
   }
  ])
 
