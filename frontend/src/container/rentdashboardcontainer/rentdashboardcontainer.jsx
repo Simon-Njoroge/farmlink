@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import Sidebar from "../../components/rentdashboard/sidenav";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { FaBars } from "react-icons/fa";
-
+import { useSelector } from "react-redux";
 const Rentdashboard = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
-
+  const user = useSelector((state) => state.user);
   return (
     <div
       className="d-flex flex-column vh-100"
@@ -26,7 +26,7 @@ const Rentdashboard = ({ children }) => {
         <span className="navbar-brand mb-0 h4 text-white">Farm Link</span>
 
         <span className="navbar-text text-white fw-bold">
-          Welcome back, Simon! 👋
+          Welcome back, {user?.first_name}! 👋
         </span>
       </nav>
 

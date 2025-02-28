@@ -21,12 +21,22 @@ from rest_framework.routers import DefaultRouter
 
 from rest_framework import routers
 
-from server.views import UserViewSet
+from server.views import UserViewSet,EquipmentViewSet,BookingViewSet,PaymentViewSet,ReviewViewSet,BlogViewSet
 
 router = routers.DefaultRouter()
 router.register(r'users', UserViewSet, basename='user')
+router.register(r'all-equipments', EquipmentViewSet, basename='equipments')
+router.register(r'all-booking', BookingViewSet, basename='booking')
+
+
+admin.site.site_header='FarmLink'
+admin.site.site_title='FarmLink Admin'
+
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/',include(router.urls))
-]
+    path('api/',include(router.urls)),
+    path('pay/',include('server.urls'))
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

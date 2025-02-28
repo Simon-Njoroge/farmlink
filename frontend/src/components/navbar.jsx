@@ -1,6 +1,7 @@
 import React from "react";
 import { Navbar, Nav, Container, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
+export const api = 'http://127.0.0.1:8000/api'
 const FarmLinkNavbar = () => {
   return (
     <Navbar expand="lg" style={{ backgroundColor: "#228B22" }} variant="dark">

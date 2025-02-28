@@ -1,0 +1,25 @@
+.small-button {
+    padding: 6px 10px;
+    font-size: 14px;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .small-button:hover {
+    opacity: 0.9;
+  }
+  
+  .cancel-button {
+    background-color: #dc3545;
+    border: none;
+  }
+  
+  .cancel-button:hover {
+    background-color: #bb2d3b;
+  }
+  
+  .d-flex.gap-2 {
+    gap: 10px; /* Adds spacing between buttons */
+  }
+  

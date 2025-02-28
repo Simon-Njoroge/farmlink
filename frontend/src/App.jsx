@@ -16,6 +16,8 @@ import Dashboard from './components/rentdashboard/dashboard';
 import EquipmentPage from './components/rentdashboard/equipment';
 import BookingsPage from './components/rentdashboard/booking';
 import PaymentPage from './components/rentdashboard/payment';
+import SettingsPage from './components/rentdashboard/setting';
+import STKPushConfirm from './components/rentdashboard/paymentpush';
 function App() {
  const router=createBrowserRouter([
   {
@@ -65,6 +67,14 @@ function App() {
   {
     path:'/en-us/authenticated/dashboard/Payment',
     element:<Rentdashboard><PaymentPage/></Rentdashboard>
+  },
+  {
+    path:'/en-us/authenticated/dashboard/setting',
+    element:<Rentdashboard><SettingsPage/></Rentdashboard>
+  },
+  {
+    path:'/en-us/safaricom/makepayment/stkpush',
+    element:<STKPushConfirm/>
   }
  ])
 

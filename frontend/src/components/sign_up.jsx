@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from 'react-toastify';
+import "react-toastify/dist/ReactToastify.css";
 import {
   Container,
   Form,
@@ -12,6 +15,7 @@ import { Link } from "react-router-dom";
 import "./sign_up.css";
 
 const SignUp = () => {
+  const Navigate=useNavigate()
   const [formData, setFormData] = useState({
     first_name: "",
     last_name: "",
@@ -74,6 +78,7 @@ const SignUp = () => {
       const data = await response.json();
 
       if (response.ok) {
+        toast.success('signed in successfully')
         setSuccess(
           "Signup successful! Please check your email to verify your account."
         );
@@ -88,8 +93,10 @@ const SignUp = () => {
       } else {
         setError(data.error || "Signup failed. Please try again.");
       }
+      Navigate('/en-us/auth/loggedin/dashboard')
     } catch (error) {
       setError("An error occurred. Please try again later.");
+      toast.error('failed to signin')
     } finally {
       setLoading(false);
     }
@@ -201,6 +208,7 @@ const SignUp = () => {
           </Col>
         </Row>
       </Container>
+      <ToastContainer/>
     </div>
   );
 };

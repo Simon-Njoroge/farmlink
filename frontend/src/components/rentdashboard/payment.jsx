@@ -4,8 +4,6 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 const payments = [
   { transactionId: "TXN12345", amount: 5000, method: "mpesa", status: true },
-  { transactionId: "TXN67890", amount: 10000, method: "paypal", status: false },
-  { transactionId: "TXN54321", amount: 7500, method: "ecocash", status: true },
 ];
 
 const PaymentPage = () => {
@@ -34,9 +32,7 @@ const PaymentPage = () => {
           />
           <Form.Select value={filterMethod} onChange={(e) => setFilterMethod(e.target.value)}>
             <option value="">All Methods</option>
-            <option value="ecocash">EcoCash</option>
             <option value="mpesa">M-Pesa</option>
-            <option value="paypal">PayPal</option>
           </Form.Select>
           <Form.Select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
             <option value="">All Statuses</option>

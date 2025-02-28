@@ -1,10 +1,25 @@
-import React from "react";
+import React, {useState,useEffect}from "react";
 import Sidebar from "../../components/rentdashboard/sidenav";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { Card } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
+import axios from "axios";
 
 const Dashboard = () => {
+  const [equipments, setEquipments] = useState([]);
+  const fetchEquipments = async () => {
+    try {
+      const response = await axios.get(`${api}/all-equipments`);
+      setEquipments(response.data);
+    } catch (error) {
+      console.error("Error fetching equipment:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchEquipments();
+  }, []);
+
   // Sample Data
   const data = [
     { name: "Jan", bookings: 30 },
@@ -15,7 +30,7 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="d-flex" style={{ height: "100vh", overflow: "hidden" }}>
+    <div className="d-flex" style={{ overflowY: "auto", flex: 1, maxHeight: "100vh" , overflowY: "auto",maxHeight: "100vh",paddingBottom: "50px", marginBottom: "auto" }}>
      
 
       {/* Main Content */}
@@ -27,19 +42,19 @@ const Dashboard = () => {
           <div className="col-md-4">
             <Card className="p-3 text-center shadow">
               <h5>Total Equipment</h5>
-              <h3>120</h3>
+              <h3>{}</h3>
             </Card>
           </div>
           <div className="col-md-4">
             <Card className="p-3 text-center shadow">
               <h5>Active Bookings</h5>
-              <h3>45</h3>
+              <h3>{}</h3>
             </Card>
           </div>
           <div className="col-md-4">
             <Card className="p-3 text-center shadow">
               <h5>Total Revenue</h5>
-              <h3>Ksh 150,000</h3>
+              <h3>Ksh {}</h3>
             </Card>
           </div>
         </div>

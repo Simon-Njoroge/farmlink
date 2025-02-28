@@ -67,8 +67,22 @@ class Booking(models.Model):
     )
     status = models.CharField(max_length=10, choices=status_choices, default='pending')
 
-    def __str__(self):
-        return f"{self.farmer.username} booked {self.equipment.name}"
+
+    # def save(self, *args, **kwargs):
+    #     # When booking is confirmed, set equipment as unavailable
+    #     if self.status == "confirmed":
+    #         self.equipment.available = False
+    #         self.equipment.save()
+
+    #     # When booking is completed or canceled, set equipment as available
+    #     elif self.status in ["completed", "cancelled"]:
+    #         self.equipment.available = True
+    #         self.equipment.save()
+
+    #     super(Booking, self).save(*args, **kwargs)
+
+    # def __str__(self):
+    #     return f"{self.farmer.username} booked {self.equipment.name}"
 
 # Payment model
 class Payment(models.Model):

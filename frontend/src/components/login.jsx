@@ -1,14 +1,18 @@
 import React, { useState } from "react";
 import { Container, Form, Button, Row, Col, Alert, Card } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import axios from "axios";
+import { setUser } from "../slices/userslice";  
 import "./Login.css";
-
+import { ToastContainer, toast } from 'react-toastify';
+import "react-toastify/dist/ReactToastify.css";
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -37,24 +41,36 @@ const Login = () => {
     }
 
     try {
+     
       const response = await axios.post("http://127.0.0.1:8000/api/users/login/", {
         email,
         password,
       });
-
-      const { token } = response.data;
-
-      // Store token in localStorage or sessionStorage
+      toast.success('Login Successful!')
+     
+      const { token, user } = response.data;  // Assume API returns user data
       localStorage.setItem("token", token);
 
-      alert("Login Successful!");
+      // Dispatch Redux action
+      dispatch(
+        setUser({
+          id: user.id,
+          username: user.username,
+          first_name: user.first_name, 
+          last_name: user.last_name, 
+          email: user.email,
+          phone: user.phone,
+        })
+      );
+
       setFormData({ email: "", password: "" });
 
-      // Redirect to the dashboard or landing page
+      // Redirect after login
       navigate("/en-us/auth/loggedin/dashboard");
 
     } catch (error) {
       setError(error.response?.data?.detail || "Login failed. Please try again.");
+      toast.error('Login failed. Please try again.')
     } finally {
       setLoading(false);
     }
@@ -113,6 +129,7 @@ const Login = () => {
           </Col>
         </Row>
       </Container>
+      <ToastContainer/>
     </div>
   );
 };
