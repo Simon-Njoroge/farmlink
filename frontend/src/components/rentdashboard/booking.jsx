@@ -1,80 +1,91 @@
-import React, { useState, useEffect } from "react";
-import { Card, Form, Button } from "react-bootstrap";
-import "bootstrap/dist/css/bootstrap.min.css";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
+import "bootstrap/dist/css/bootstrap.min.css";
+import { Card, Button, Form, Spinner, Alert } from "react-bootstrap";
 import { api } from "../navbar";
-import "./booking.css";
+import { useSelector } from "react-redux";
+
 const BookingsPage = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const user = useSelector((state) => state.user);
   const [bookings, setBookings] = useState([]);
   const [equipments, setEquipments] = useState({});
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchBookings = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get(`${api}/all-booking`);
-        setBookings(response.data);
-      } catch (error) {
-        console.error("Error fetching bookings:", error);
-      }
-    };
+        setLoading(true);
+        const token = localStorage.getItem("access_token");
 
-    const fetchEquipments = async () => {
-      try {
-        const response = await axios.get(`${api}/all-equipments`);
-        const equipmentData = response.data.reduce((acc, equipment) => {
+        const [bookingsResponse, equipmentsResponse] = await Promise.all([
+          axios.get(`${api}/all-booking`),
+          axios.get(`${api}/all-equipments`)
+        ]);
+
+        setBookings(bookingsResponse.data);
+
+        const equipmentData = equipmentsResponse.data.reduce((acc, equipment) => {
           acc[equipment.id] = equipment;
           return acc;
         }, {});
         setEquipments(equipmentData);
-      } catch (error) {
-        console.error("Error fetching equipment:", error);
+
+      } catch (err) {
+        setError("Failed to fetch data");
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchBookings();
-    fetchEquipments();
+    fetchData();
   }, []);
 
-  const filteredBookings = bookings.filter(
-    (booking) =>
-      (statusFilter === "all" || booking.status === statusFilter) &&
-      booking.equipment?.name?.toLowerCase().includes(searchTerm.toLowerCase()) // Ensure equipment is present
+  const filteredBookings = bookings.filter((booking) =>
+    (statusFilter === "all" || booking.status === statusFilter) &&
+    (equipments[booking.equipment_id]?.name || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Calculate total price based on the number of days and amount per day
   const calculateTotalPrice = (startDate, endDate, amountPerDay) => {
     const start = new Date(startDate);
     const end = new Date(endDate);
     const diffTime = Math.abs(end - start);
-    const numberOfDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // Convert to days
+    const numberOfDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return numberOfDays * amountPerDay;
   };
 
-  // Handle booking cancellation
   const cancelBooking = async (bookingId) => {
     try {
-      await axios.delete(`${api}/all-booking`);
+      await axios.delete(`${api}/all-booking/${bookingId}`);
       setBookings(bookings.filter((booking) => booking.id !== bookingId));
       alert("Booking cancelled successfully!");
-    } catch (error) {
-      console.error("Error cancelling booking:", error);
+    } catch {
+      setError("Error cancelling booking");
     }
   };
 
-  // Handle payment
   const proceedToPayment = (totalPrice) => {
     alert(`Proceeding to payment of Ksh ${totalPrice}`);
-    window.location.href =
-      "http://127.0.0.1:8000/pay/daraja/makepayment/stk_push/";
+    window.location.href = "http://127.0.0.1:8000/pay/daraja/makepayment/stk_push/";
   };
 
+  if (loading) {
+    return (
+      <div className="text-center mt-5">
+        <Spinner animation="border" variant="primary" />
+        <p>Loading bookings...</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="container mt-4" style={{ overflowY: "auto", flex: 1, maxHeight: "100vh" , overflowY: "auto",maxHeight: "100vh",paddingBottom: "50px", marginBottom: "auto" }}>
+    <div className="container mt-4" style={{ overflowY: "auto", flex: 1, maxHeight: "100vh", paddingBottom: "50px" }}>
       <h2>Bookings</h2>
 
-      {/* Search and Filter Section */}
+      {error && <Alert variant="danger">{error}</Alert>}
+
       <div className="d-flex mb-3">
         <Form.Control
           type="text"
@@ -83,10 +94,7 @@ const BookingsPage = () => {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <Form.Select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-        >
+        <Form.Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
           <option value="all">All Statuses</option>
           <option value="pending">Pending</option>
           <option value="confirmed">Confirmed</option>
@@ -95,56 +103,46 @@ const BookingsPage = () => {
         </Form.Select>
       </div>
 
-      {/* Bookings List */}
       <div className="row">
-        {filteredBookings.map((booking) => {
-          const equipment = equipments[booking.equipment_id]; // Find the equipment by ID
-          const totalPrice = booking.equipment?.price_per_day
-            ? calculateTotalPrice(
-                booking.start_date,
-                booking.end_date,
-                booking.equipment.price_per_day
-              )
-            : 0;
+        {filteredBookings.length === 0 ? (
+          <p className="text-center">No bookings found.</p>
+        ) : (
+          filteredBookings.map((booking) => {
+            const equipment = equipments[booking.equipment_id];
+            const totalPrice = booking.equipment?.price_per_day
+              ? calculateTotalPrice(booking.start_date, booking.end_date, booking.equipment.price_per_day)
+              : 0;
 
-          return (
-            <div key={booking.id} className="col-md-4 mb-3">
-              <Card className="p-3 shadow">
-                <h5>{booking.equipment?.name || "Unknown Equipment"}</h5>
-                <p>Start Date: {booking.start_date}</p>
-                <p>End Date: {booking.end_date}</p>
-                <p>
-                  Status: <strong>{booking.status}</strong>
-                </p>
-                <p>
-                  Total Price: <strong>Ksh {totalPrice}</strong>
-                </p>
+            return (
+              <div key={booking.id} className="col-md-4 mb-3">
+                <Card className="p-3 shadow">
+                  <h5>{booking.equipment?.name || "Unknown Equipment"}</h5>
+                  <p>Start Date: {booking.start_date}</p>
+                  <p>End Date: {booking.end_date}</p>
+                  <p>
+                    Status: <strong>{booking.status}</strong>
+                  </p>
+                  <p>
+                    Total Price: <strong>Ksh {totalPrice}</strong>
+                  </p>
 
-                {/* Buttons for actions */}
-                <div className="d-flex gap-2">
-                  {booking.status === "pending" && (
-                    <Button
-                      variant="success"
-                      className="small-button"
-                      onClick={() => proceedToPayment(totalPrice)}
-                    >
-                      Pay
-                    </Button>
-                  )}
-                  {booking.status !== "cancelled" && (
-                    <Button
-                      variant="danger"
-                      className="small-button cancel-button"
-                      onClick={() => cancelBooking(booking.id)}
-                    >
-                      Cancel
-                    </Button>
-                  )}
-                </div>
-              </Card>
-            </div>
-          );
-        })}
+                  <div className="d-flex gap-2">
+                    {booking.status === "pending" && (
+                      <Button variant="success" className="small-button" onClick={() => proceedToPayment(totalPrice)}>
+                        Pay
+                      </Button>
+                    )}
+                    {booking.status !== "cancelled" && (
+                      <Button variant="danger" className="small-button cancel-button" onClick={() => cancelBooking(booking.id)}>
+                        Cancel
+                      </Button>
+                    )}
+                  </div>
+                </Card>
+              </div>
+            );
+          })
+        )}
       </div>
     </div>
   );

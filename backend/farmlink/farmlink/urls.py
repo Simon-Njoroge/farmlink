@@ -27,6 +27,7 @@ router = routers.DefaultRouter()
 router.register(r'users', UserViewSet, basename='user')
 router.register(r'all-equipments', EquipmentViewSet, basename='equipments')
 router.register(r'all-booking', BookingViewSet, basename='booking')
+router.register(r'payment', PaymentViewSet, basename='payment')
 
 
 admin.site.site_header='FarmLink'

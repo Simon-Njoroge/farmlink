@@ -20,7 +20,7 @@ const UserLandingPage = () => {
                 <Button className="btn-custom" onClick={() => navigate("/en-us/authenticated/dashboard/dashboard")}>
                   Rent Equipment
                 </Button>
-                <Button className="btn-custom-outline" onClick={() => navigate("/offer")}>
+                <Button className="btn-custom-outline" onClick={() => navigate("/en-us/authenticated/dashboard/add-equipment")}>
                   Offer Equipment
                 </Button>
               </div>

@@ -50,18 +50,10 @@ const Login = () => {
      
       const { token, user } = response.data;  // Assume API returns user data
       localStorage.setItem("token", token);
-
+      
+      const userData = response.data;
       // Dispatch Redux action
-      dispatch(
-        setUser({
-          id: user.id,
-          username: user.username,
-          first_name: user.first_name, 
-          last_name: user.last_name, 
-          email: user.email,
-          phone: user.phone,
-        })
-      );
+      dispatch(setUser(user));
 
       setFormData({ email: "", password: "" });
 

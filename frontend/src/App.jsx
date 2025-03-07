@@ -12,10 +12,12 @@ import SignUp from './components/sign_up';
 import Login from './components/login';
 import UserLandingPage from './components/userlanding';
 import Rentdashboard from './container/rentdashboardcontainer/rentdashboardcontainer';
+import Adddashboard from './container/rentdashboardcontainer/addequipmentdashboard';
 import Dashboard from './components/rentdashboard/dashboard';
 import EquipmentPage from './components/rentdashboard/equipment';
 import BookingsPage from './components/rentdashboard/booking';
 import PaymentPage from './components/rentdashboard/payment';
+import AddEquipment from './components/rentdashboard/addequipment';
 import SettingsPage from './components/rentdashboard/setting';
 import STKPushConfirm from './components/rentdashboard/paymentpush';
 function App() {
@@ -67,6 +69,10 @@ function App() {
   {
     path:'/en-us/authenticated/dashboard/Payment',
     element:<Rentdashboard><PaymentPage/></Rentdashboard>
+  },
+  {
+    path:'/en-us/authenticated/dashboard/add-equipment',
+    element:<Adddashboard><AddEquipment/></Adddashboard>
   },
   {
     path:'/en-us/authenticated/dashboard/setting',
