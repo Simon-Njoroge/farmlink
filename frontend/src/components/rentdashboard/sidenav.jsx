@@ -29,7 +29,7 @@ const Sidebar = () => {
         </li>
         <li className="nav-item">
           <Link to="/en-us/authenticated/dashboard/equipments" className="nav-link text-white">
-            <FaTools className="me-2" /> List Equipment
+            <FaTools className="me-2" /> Book Equipment
           </Link>
         </li>
         <li className="nav-item">

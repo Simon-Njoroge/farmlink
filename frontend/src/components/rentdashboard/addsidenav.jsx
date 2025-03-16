@@ -24,7 +24,7 @@ const AddSidebar = () => {
       <ul className="nav nav-pills flex-column mb-auto">
         <li className="nav-item">
           <Link to="/en-us/authenticated/dashboard/dashboard" className="nav-link text-white">
-            <FaTachometerAlt className="me-2" /> add equipment
+            <FaTachometerAlt className="me-2" /> Rental Dashboard
           </Link>
         </li>
         <li className="nav-item">
