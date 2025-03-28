@@ -23,11 +23,6 @@ const Sidebar = () => {
       <hr />
       <ul className="nav nav-pills flex-column mb-auto">
         <li className="nav-item">
-          <Link to="/en-us/authenticated/dashboard/dashboard" className="nav-link text-white">
-            <FaTachometerAlt className="me-2" /> Dashboard
-          </Link>
-        </li>
-        <li className="nav-item">
           <Link to="/en-us/authenticated/dashboard/equipments" className="nav-link text-white">
             <FaTools className="me-2" /> Book Equipment
           </Link>

@@ -176,5 +176,3 @@ def stk_push(request):
 }
         response = requests.post(api_url, json=payload, headers=headers)
         return redirect('http://localhost:5173/en-us/safaricom/makepayment/stkpush')
-# def thank_you(request):
-#     return render(request,'success.html')

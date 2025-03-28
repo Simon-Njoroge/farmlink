@@ -17,7 +17,7 @@ const UserLandingPage = () => {
                 Your trusted platform for renting and leasing agricultural equipment.
               </p>
               <div className="button-group">
-                <Button className="btn-custom" onClick={() => navigate("/en-us/authenticated/dashboard/dashboard")}>
+                <Button className="btn-custom" onClick={() => navigate("/en-us/authenticated/dashboard/equipments")}>
                   Rent Equipment
                 </Button>
                 <Button className="btn-custom-outline" onClick={() => navigate("/en-us/authenticated/dashboard/add-equipment")}>

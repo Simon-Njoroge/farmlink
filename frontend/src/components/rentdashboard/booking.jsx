@@ -4,6 +4,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Card, Button, Form, Spinner, Alert } from "react-bootstrap";
 import { api } from "../navbar";
 import { useSelector } from "react-redux";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const BookingsPage = () => {
   const user = useSelector((state) => state.user);
@@ -22,17 +24,19 @@ const BookingsPage = () => {
 
         const [bookingsResponse, equipmentsResponse] = await Promise.all([
           axios.get(`${api}/all-booking`),
-          axios.get(`${api}/all-equipments`)
+          axios.get(`${api}/all-equipments`),
         ]);
 
         setBookings(bookingsResponse.data);
 
-        const equipmentData = equipmentsResponse.data.reduce((acc, equipment) => {
-          acc[equipment.id] = equipment;
-          return acc;
-        }, {});
+        const equipmentData = equipmentsResponse.data.reduce(
+          (acc, equipment) => {
+            acc[equipment.id] = equipment;
+            return acc;
+          },
+          {}
+        );
         setEquipments(equipmentData);
-
       } catch (err) {
         setError("Failed to fetch data");
       } finally {
@@ -43,9 +47,12 @@ const BookingsPage = () => {
     fetchData();
   }, []);
 
-  const filteredBookings = bookings.filter((booking) =>
-    (statusFilter === "all" || booking.status === statusFilter) &&
-    (equipments[booking.equipment_id]?.name || "").toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredBookings = bookings.filter(
+    (booking) =>
+      (statusFilter === "all" || booking.status === statusFilter) &&
+      (equipments[booking.equipment_id]?.name || "")
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase())
   );
 
   const calculateTotalPrice = (startDate, endDate, amountPerDay) => {
@@ -67,8 +74,25 @@ const BookingsPage = () => {
   };
 
   const proceedToPayment = (totalPrice) => {
-    alert(`Proceeding to payment of Ksh ${totalPrice}`);
-    window.location.href = "http://127.0.0.1:8000/pay/daraja/makepayment/stk_push/";
+
+    toast.success(`Proceeding to payment of Ksh ${totalPrice}`, {
+      style: {
+        position: "fixed",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        zIndex: 9999,
+        textAlign: "center",
+      },
+      autoClose: 3000, 
+    });
+    
+    
+
+    setTimeout(() => {
+      window.location.href =
+        "http://127.0.0.1:8000/pay/daraja/makepayment/stk_push/";
+    }, 5000);
   };
 
   if (loading) {
@@ -81,7 +105,15 @@ const BookingsPage = () => {
   }
 
   return (
-    <div className="container mt-4" style={{ overflowY: "auto", flex: 1, maxHeight: "100vh", paddingBottom: "50px" }}>
+    <div
+      className="container mt-4"
+      style={{
+        overflowY: "auto",
+        flex: 1,
+        maxHeight: "100vh",
+        paddingBottom: "50px",
+      }}
+    >
       <h2>Bookings</h2>
 
       {error && <Alert variant="danger">{error}</Alert>}
@@ -94,7 +126,10 @@ const BookingsPage = () => {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <Form.Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+        <Form.Select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+        >
           <option value="all">All Statuses</option>
           <option value="pending">Pending</option>
           <option value="confirmed">Confirmed</option>
@@ -110,7 +145,11 @@ const BookingsPage = () => {
           filteredBookings.map((booking) => {
             const equipment = equipments[booking.equipment_id];
             const totalPrice = booking.equipment?.price_per_day
-              ? calculateTotalPrice(booking.start_date, booking.end_date, booking.equipment.price_per_day)
+              ? calculateTotalPrice(
+                  booking.start_date,
+                  booking.end_date,
+                  booking.equipment.price_per_day
+                )
               : 0;
 
             return (
@@ -128,12 +167,20 @@ const BookingsPage = () => {
 
                   <div className="d-flex gap-2">
                     {booking.status === "pending" && (
-                      <Button variant="success" className="small-button" onClick={() => proceedToPayment(totalPrice)}>
+                      <Button
+                        variant="success"
+                        className="small-button"
+                        onClick={() => proceedToPayment(totalPrice)}
+                      >
                         Pay
                       </Button>
                     )}
                     {booking.status !== "cancelled" && (
-                      <Button variant="danger" className="small-button cancel-button" onClick={() => cancelBooking(booking.id)}>
+                      <Button
+                        variant="danger"
+                        className="small-button cancel-button"
+                        onClick={() => cancelBooking(booking.id)}
+                      >
                         Cancel
                       </Button>
                     )}
@@ -144,6 +191,7 @@ const BookingsPage = () => {
           })
         )}
       </div>
+      <ToastContainer/>
     </div>
   );
 };

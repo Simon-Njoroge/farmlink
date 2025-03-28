@@ -53,11 +53,17 @@ class BookingSerializer(serializers.ModelSerializer):
         queryset=Equipment.objects.all(), source="equipment", write_only=True
     )
     
-    equipment = EquipmentSerializer(read_only=True)  
+    equipment = EquipmentSerializer(read_only=True)
 
+    
     class Meta:
         model = Booking
         fields = '__all__'
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation["end_date"] = instance.end_date.isoformat()
+        return representation
 
     def create(self, validated_data):
         """

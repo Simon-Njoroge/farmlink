@@ -57,8 +57,8 @@ class Equipment(models.Model):
 class Booking(models.Model):
     farmer = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="bookings")
     equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE, related_name="bookings")
-    start_date = models.DateField()
-    end_date = models.DateField()
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
     status_choices = (
         ('pending', 'Pending'),
         ('confirmed', 'Confirmed'),
