@@ -1,11 +1,13 @@
 from django.shortcuts import render,redirect
-from .models import Equipment,Booking,Payment,Review,Blog
+from .models import Equipment,Booking,Payment,MPayment,Review,Blog
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import RefreshToken
-
+from django.views.decorators.csrf import csrf_exempt
+import json
+from django.http import JsonResponse
 from .serializers import SignupSerializer, LoginSerializer,EquipmentSerializer,BookingSerializer,PaymentSerializer,ReviewSerializer,BlogSerializer
 from . credentials import MpesaAccessToken, MpesaPassword
 import requests
@@ -151,28 +153,65 @@ class BlogViewSet(viewsets.ModelViewSet):
 def makepayment(request):
     return render(request,'pay.html')
 
+@csrf_exempt
 def stk_push(request):
     if request.method == "POST":
-        phone_number = request.POST.get('phone_number')
-        amount = request.POST.get('amount')
+        data = json.loads(request.body)
+        phone_number = data.get('phone_number')
+        amount = data.get('amount')
 
         access_token = MpesaAccessToken.validated_token
-
         api_url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
+        headers = {"Authorization": f"Bearer {access_token}"}
 
-        headers = {"Authorization": "Bearer %s" % access_token}
-        payload={    
-           "BusinessShortCode": MpesaPassword.shortcode,    
-           "Password": MpesaPassword.decoded_password,    
-           "Timestamp":MpesaPassword.timestamp,    
-           "TransactionType": "CustomerPayBillOnline",    
-           "Amount": amount,    
-           "PartyA":phone_number,    
-           "PartyB":MpesaPassword.shortcode,    
-           "PhoneNumber":phone_number,    
-           "CallBackURL": "https://mydomain.com/pat",    
-           "AccountReference":"Test",    
-           "TransactionDesc":"Test"
-}
+        payload = {    
+            "BusinessShortCode": MpesaPassword.shortcode,    
+            "Password": MpesaPassword.decoded_password,    
+            "Timestamp": MpesaPassword.timestamp,    
+            "TransactionType": "CustomerPayBillOnline",    
+            "Amount": amount,    
+            "PartyA": phone_number,    
+            "PartyB": MpesaPassword.shortcode,    
+            "PhoneNumber": phone_number,    
+            "CallBackURL": "https://mydomain.com/pat",    
+            "AccountReference": "Test",    
+            "TransactionDesc": "Test Payment"
+        }
+
         response = requests.post(api_url, json=payload, headers=headers)
-        return redirect('http://localhost:5173/en-us/safaricom/makepayment/stkpush')
+        response_data = response.json()
+
+        return JsonResponse(response_data)
+    
+@csrf_exempt
+def mpesa_callback(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+
+        result_code = data['Body']['stkCallback']['ResultCode']
+        checkout_request_id = data['Body']['stkCallback']['CheckoutRequestID']
+
+        if result_code == 0:  
+            callback_items = data['Body']['stkCallback']['CallbackMetadata']['Item']
+            amount = callback_items[0]['Value']
+            mpesa_transaction_id = callback_items[1]['Value'] 
+            phone_number = callback_items[4]['Value']
+
+           
+            payment = MPayment.objects.filter(transaction_id=checkout_request_id).first()
+            if payment:
+                payment.payment_status = True  
+                payment.transaction_id = mpesa_transaction_id
+                payment.save()
+                return JsonResponse({"status": "Success"}, status=200)
+
+        return JsonResponse({"status": "Failed"}, status=400)
+
+    
+def check_payment_status(request, transaction_id):
+    try:
+        payment = Payment.objects.get(transaction_id=transaction_id)
+        return JsonResponse({"status": "Paid" if payment.payment_status else "Pending"}, status=200)
+    except Payment.DoesNotExist:
+        return JsonResponse({"status": "Not Found"}, status=404)
+

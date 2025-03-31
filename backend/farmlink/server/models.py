@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-
+import uuid
+from django.utils.timezone import now
 
 # Create your models here.
 
@@ -86,19 +87,48 @@ class Booking(models.Model):
 
 # Payment model
 class Payment(models.Model):
-    booking = models.OneToOneField(Booking, on_delete=models.CASCADE, related_name="payment")
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-    payment_method_choices = (
+    PAYMENT_METHOD_CHOICES = (
         ('ecocash', 'EcoCash'),
         ('mpesa', 'M-Pesa'),
         ('paypal', 'PayPal'),
     )
-    payment_method = models.CharField(max_length=10, choices=payment_method_choices)
-    payment_status = models.BooleanField(default=False)
-    transaction_id = models.CharField(max_length=100, unique=True)
+
+    booking = models.OneToOneField(
+        Booking, 
+        on_delete=models.CASCADE, 
+        related_name="payment"
+    )
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    payment_method = models.CharField(
+        max_length=10, 
+        choices=PAYMENT_METHOD_CHOICES
+       
+    )
+    payment_status = models.BooleanField(default=False)  # False = Pending, True = Paid
+    transaction_id = models.CharField(
+        max_length=100, 
+        unique=True, 
+        default=uuid.uuid4
+    )  
+
+    created_at = models.DateTimeField(auto_now_add=True)  
+    updated_at = models.DateTimeField(auto_now=True)  # Track updates
 
     def __str__(self):
-        return f"Payment for {self.booking.equipment.name} by {self.booking.farmer.username}"
+        return f"Payment for {self.booking.equipment.name} by {self.booking.farmer.username} ({self.payment_method})"
+
+from django.db import models
+
+class MPayment(models.Model):
+    phone_number = models.CharField(max_length=15)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    merchant_request_id = models.CharField(max_length=100, unique=True)
+    checkout_request_id = models.CharField(max_length=100, unique=True)
+    status = models.CharField(max_length=20, choices=[("Success", "Success"), ("Failed", "Failed")])
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.phone_number} - {self.amount} ({self.status})"
 
 # Review model for farmers to rate equipment and services
 class Review(models.Model):

@@ -6,7 +6,7 @@ import { api } from "../navbar";
 import { useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
+import { useNavigate, useNavigation } from "react-router-dom";
 const BookingsPage = () => {
   const user = useSelector((state) => state.user);
   const [bookings, setBookings] = useState([]);
@@ -15,7 +15,7 @@ const BookingsPage = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
+  const Navigate=useNavigate()
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -90,9 +90,8 @@ const BookingsPage = () => {
     
 
     setTimeout(() => {
-      window.location.href =
-        "http://127.0.0.1:8000/pay/daraja/makepayment/stk_push/";
-    }, 5000);
+     Navigate('/en-us/safaricom/makepayment', { state: { amount: totalPrice } });
+    }, 3000);
   };
 
   if (loading) {
